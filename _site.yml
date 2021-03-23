@@ -6,7 +6,7 @@ theme: covid_siteweb.css
 navbar:
   logo: 
     image: images/logo.png
-    href: http://mecen-univ-tours.fr/
+    href: https://tutorielcovidinfo.netlify.app/
   right:
     - text: "Accueil"
       href: index.html
