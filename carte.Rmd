@@ -9,9 +9,9 @@ knitr::opts_chunk$set(echo=F,warning=F,message=F,fig.align= "center",fig.height=
 
 ```
 ### Le dépistage
-Les tests virologiques (RT-PCR) sont effectués dans des centres de dépistage que vous pourrez retrouver sur cette carte.
+Les tests virologiques (RT-PCR) sont effectués dans des centres de dépistage que vous pourrez retrouver sur la carte ci-dessous.
  
-Vous pouvez bénéficier d’un test de dépistage, à votre demande et sans prescription médicale, sans même présenter de symptômes. Il est intégralement pris en charge par l'assurance maladie. Ces dispositions sont également applicables aux personnes qui ne sont pas assurés sociaux. Les personnes présentant des symptômes, les cas contacts et les personnels soignants ou assimilés sont testés en priorité.
+Il est possible de bénéficier d’un test de dépistage, à la demande et sans prescription médicale, sans même présenter de symptômes. Il est intégralement pris en charge par l'assurance maladie. Ces dispositions sont également applicables aux personnes qui ne sont pas assurés sociaux. Les personnes présentant des symptômes, les cas contacts et les personnels soignants ou assimilés sont testés en priorité.
 
 
 ### La vaccination 

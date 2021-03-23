@@ -8,7 +8,7 @@ css: [covid_siteweb.css]
 knitr::opts_chunk$set(echo=F,warning=F,message=F,fig.align= "center",fig.height= 5, fig.width= 8.5)
 ```
 
-<h1> Etat de la vaccination </h1>
+# Etat de la vaccination
 ```{r, include=FALSE}
 #Library et parametrage
 library(ggplot2)

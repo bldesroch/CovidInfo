@@ -99,12 +99,10 @@ df4 <- tx_posi_depart[which(tx_posi_depart$week==7),]
 ```
 
 
-# Visualisation de données sur la pandémie du Covid-19
-
 ## Qu'est ce que le covid ? 
 Le virus identifié en janvier 2020 en Chine est un nouveau coronavirus, nommé SARS-CoV-2. La maladie provoquée par ce coronavirus a été nommée COVID-19 par l’[Organisation mondiale de la Santé](https://www.who.int/fr/emergencies/diseases/novel-coronavirus-2019/advice-for-public) - OMS. Depuis le 11 mars 2020, l’OMS qualifie la situation mondiale du COVID-19 de pandémie.
 
-## En quelques chiffres :
+## La pandémie en quelques chiffres :
 <br/>
 <small> Du 15 au 21 Février 2021</small>
 <br/>
@@ -117,7 +115,7 @@ Le virus identifié en janvier 2020 en Chine est un nouveau coronavirus, nommé 
 </div>
 
 
-## Visualisation générale 
+# Évolution générale de la pandémie de covid 19.
 
 ```{r,include=TRUE, layout="l-body-outset", fig.width=6, fig.height=4}
 # df3 Taux de positivité 
@@ -134,7 +132,7 @@ fig_tx_posi_2020 <- fig_tx_posi_2020 %>% layout(title = "Evolution du taux de po
 
 
 
-```{r,include=TRUE, layout="l-body-outset", fig.width=8, fig.height=4}
+```{r,include=TRUE, layout="l-body-outset", fig.width=9, fig.height=4}
 # df3 Taux de indicidence 
 fig_tx_inci_2020 <- plot_ly(df3, x = ~week, y = ~tx_inci, name = "Taux d'incidence", type = 'scatter', mode = 'lines',
         line = list(color = bleu_fonc, width = 4)) 
