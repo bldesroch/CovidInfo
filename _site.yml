@@ -6,7 +6,7 @@ theme: covid_siteweb.css
 navbar:
   logo: 
     image: images/logo.png
-    href: https://tutorielcovidinfo.netlify.app/
+    href: https://tutocovidinfo.netlify.app/
   right:
     - text: "Accueil"
       href: index.html

@@ -11,7 +11,7 @@ Les données sont toutes issues de [Santé publique France](https://www.santepub
 
 ### Tutoriel
 
-Afin d'obtenir plus d'information sur la création des cartes interatives, un tutoriel est disponible [ici](https://tutorielcovidinfo.netlify.app/)
+Afin d'obtenir plus d'information sur la création des cartes interatives, un tutoriel est disponible [ici](https://tutocovidinfo.netlify.app/)
 
 ### À propos de nous :
 
