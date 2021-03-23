@@ -1,0 +1,20 @@
+name: "CovidInfo"
+title: "CovidInfo"
+output_dir: "."
+theme: covid_siteweb.css
+
+navbar:
+  logo: 
+    image: images/logo.png
+    href: http://mecen-univ-tours.fr/
+  right:
+    - text: "Accueil"
+      href: index.html
+    - text: "Ou se faire vacciner et tester"
+      href: carte.html
+    - text: "Vaccination"
+      href: vaccination.html
+    - text: "Qui sommes-nous ?"
+      href: about.html
+output: 
+  distill::distill_article

@@ -1,0 +1,106 @@
+---
+title: "Ou se faire vacciner et tester"
+css: [covid_siteweb.css]
+
+---
+
+```{r setup, include=FALSE,echo=FALSE}
+knitr::opts_chunk$set(echo=F,warning=F,message=F,fig.align= "center",fig.height= 5, fig.width= 8.5)
+
+```
+### Le dépistage
+Les tests virologiques (RT-PCR) sont effectués dans des centres de dépistage que vous pourrez retrouver sur cette carte.
+ 
+Vous pouvez bénéficier d’un test de dépistage, à votre demande et sans prescription médicale, sans même présenter de symptômes. Il est intégralement pris en charge par l'assurance maladie. Ces dispositions sont également applicables aux personnes qui ne sont pas assurés sociaux. Les personnes présentant des symptômes, les cas contacts et les personnels soignants ou assimilés sont testés en priorité.
+
+
+### La vaccination 
+
+
+Depuis le 18 janvier, la vaccination est élargie aux personnes âgées de 75 ans et plus qui ne sont pas en établissement mais à domicile, ce qui représente 5 millions de personnes. La vaccination est également ouverte aux personnes, quel que soit leur âge, présentant une des pathologies (insuffisance rénale chronique, cancer sous traitement, transplantés d’organes, personnes atteintes de trisomie…) conduisant à un très haut risque de forme grave de la maladie, ce qui représente 800 000 personnes.
+
+Ces personnes peuvent, depuis le 15 janvier, prendre rendez-vous par téléphone ou par internet pour se faire vacciner.
+
+
+# Où vous faire tester et vacciner :
+```{r, include=FALSE}
+#Library et parametrage
+library(ggplot2)
+library(plotly)
+library(dplyr)
+library(stringr)
+library(RColorBrewer)
+library(leaflet)
+library(tidyr)
+library(readr)
+
+```
+
+```{r,include=FALSE}
+sites_prelev <- read_csv("sites-prelevements-grand-public.csv")
+
+#échange de la latitude avec la longitude sur une ligne n°75, erreur base de donées.
+sites_prelev[sites_prelev==43.644950]<-1
+sites_prelev[sites_prelev==6.93065]<-43.644950
+sites_prelev[sites_prelev==1]<-6.93065
+
+
+#centre de vaccination
+centres_vaccination <- read_delim("centres-vaccination.csv", ";", escape_double = FALSE, trim_ws = TRUE, na = "empty")
+
+centres_vaccination <-centres_vaccination %>% filter(gid!="1443")
+
+
+centres_vaccination$adresse  <-
+  paste(centres_vaccination$adr_num, centres_vaccination$adr_voie, centres_vaccination$com_cp, 
+        centres_vaccination$com_nom, sep = " ")
+
+
+```
+
+```{r,include=FALSE}
+# Quand on clique sur les marqueurs, la box d'informations.
+boxinfo <- paste0('<strong>Nom :</strong> ', sites_prelev$rs, '<br/><hr>',
+                  '<strong>Adresse :</strong> ', sites_prelev$adresse, '<br/>',
+                  '<strong>RDV :</strong> ', sites_prelev$check_rdv, '<br/>',
+                  '<strong>Numéro de téléphone :</strong>', sites_prelev$tel_rdv,'<br/>')
+
+# Créer les icones noires
+MarkerIcon <-makeIcon("marker-icon-black.png", "marker-icon-2x-black.png", 20, 30)
+
+# Quand on clique sur les marqueurs, la box d'information.
+boxinfovac <- paste0('<strong>Nom :</strong> ', centres_vaccination$nom, '<br/><hr>',
+                  '<strong>Adresse :</strong> ', centres_vaccination$adresse, '<br/>',
+                  '<strong>RDV téléphone : </strong> ', centres_vaccination$rdv_tel, '<br/>',
+                  '<strong> Site web :</strong>',centres_vaccination$rdv_site_web,'<br/>')
+
+# Créer les icones noires
+MarkerIcon_vac <-makeIcon("marker-icon-grey.png", "marker-icon-2x-grey.png", 20, 30)
+```
+
+```{r, include=TRUE, layout="l-body-outset"}
+#icon Create function : créer les cluster avec des couleurs Mécen.
+#Popup : boxinfo pour insérer les infos.
+leaflet(
+options = leafletOptions(
+            attributionControl=FALSE)) %>% addTiles() %>% addMarkers(data = centres_vaccination, lng =   centres_vaccination$long_coor1, lat =   centres_vaccination$lat_coor1,icon=MarkerIcon_vac,  clusterOptions = markerClusterOptions(iconCreateFunction=JS("function (cluster) {var childCount = cluster.getChildCount();  
+    if (childCount < 50) {  
+      c = 'rgba(168, 238, 160, 1.0);'
+    } else if (childCount < 100) {  
+      c = 'rgba(126, 179, 120, 1);'  
+    } else { 
+      c = 'rgba(59, 93, 55, 1);'  
+    }    
+    return new L.DivIcon({ html: '<div style=\"background-color:'+c+'\"><span>' + childCount + '</span></div>', className: 'marker-cluster', iconSize: new L.Point(40, 40) });}")), popup = boxinfovac, popupOptions=list(maxHeight=100, maxWidth=300), group = "Centre de vaccination") %>% 
+    addMarkers(data=sites_prelev ,lng =   sites_prelev$longitude, lat =   sites_prelev$latitude,icon=MarkerIcon,  clusterOptions = markerClusterOptions(iconCreateFunction=JS("function (cluster) {var childCount = cluster.getChildCount();  
+    if (childCount < 50) {  
+      c = 'rgba(164, 194, 209, 1.0);'
+    } else if (childCount < 100) {  
+      c = 'rgba(118, 141, 152, 1);'  
+    } else { 
+      c = 'rgba(41, 67, 80, 1);'  
+    }    
+    return new L.DivIcon({ html: '<div style=\"background-color:'+c+'\"><span>' + childCount + '</span></div>', className: 'marker-cluster', iconSize: new L.Point(40, 40) });}")), popup = boxinfo, popupOptions=list(maxHeight=100, maxWidth=300) ,group = "Centre de prélèvement")%>% addLayersControl(overlayGroups=c("Centre de prélèvement","Centre de vaccination"),position = "bottomright",options =layersControlOptions(collapsed = FALSE)) %>%  hideGroup(c("Centre de prélèvement"))
+
+```
+

@@ -1,0 +1,67 @@
+---
+title: "Qui sommes-nous ?"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+### Les données
+
+Les données sont toutes issues de [Santé publique France](https://www.santepubliquefrance.fr/) et de l'[INSEE](https://www.insee.fr/fr/accueil) (Institut National de la Statistique et des Études Économiques).
+
+### Tutoriel
+
+Afin d'obtenir plus d'information sur
+
+### À propos de nous :
+
+
+Tous deux étudiants en dernière année du master [Mécen](http://mecen-univ-tours.fr/) (Université de Tours), ce site à pour objectif de rendre les données de la pandémie du Covid-19 visuellement accessible à tous et de le rendre le plus intéractif possible. 
+Vous pourrez nous contacter via nos différentes plateformes :
+
+
+<br>
+<span itemprop="name" style="font-variant: small-caps; color: #A4C2D1; font-size: 150%">Blandine Desroches</span>
+
+<div style='text-align: center;  color: #A4C2D1'>
+<a style='color: #A4C2D1' href="mailto:blandine.desroches@hotmail.fr" title="Email me" class = 'social-icon'><span class="fa-stack fa-lg" aria-hidden="true">
+  <i class="fa fa-circle fa-stack-2x"></i>
+  <i class="fa fa-envelope fa-stack-1x fa-inverse"></i>
+</span>
+<span class="sr-only">Email me</span>
+</a>
+<a style='color: #A4C2D1'href="https://github.com/bldesroch" title="GitHub" class = 'social-icon'>
+  <span class="fa-stack fa-lg" aria-hidden="true">
+    <i class="fa fa-circle fa-stack-2x"></i>
+    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+  </span>
+  <span class="sr-only">GitHub</span>
+</a>
+<a style='color: #A4C2D1' href="https://www.linkedin.com/in/blandine-desroches/" title="LinkedIn" class = 'social-icon'><span class="fa-stack fa-lg" aria-hidden="true">
+  <i class="fa fa-circle fa-stack-2x"></i>
+  <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+</span>
+<span class="sr-only">LinkedIn</span>
+</a>
+</a>
+</div>
+
+
+<br>
+<span itemprop="name" style="font-variant: small-caps; color: #A4C2D1; font-size: 150%">Nicolas Barré</span>
+
+<div style='text-align: center;  color: #A4C2D1'>
+<a style='color: #A4C2D1' href="mailto:nbarre351@gmail.com" title="Email me" class = 'social-icon'><span class="fa-stack fa-lg" aria-hidden="true">
+  <i class="fa fa-circle fa-stack-2x"></i>
+  <i class="fa fa-envelope fa-stack-1x fa-inverse"></i>
+</span>
+<span class="sr-only">Email me</span>
+</a>
+<a style='color: #A4C2D1' href="https://www.linkedin.com/in/nbarre/" title="LinkedIn" class = 'social-icon'><span class="fa-stack fa-lg" aria-hidden="true">
+  <i class="fa fa-circle fa-stack-2x"></i>
+  <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+</span>
+<span class="sr-only">LinkedIn</span>
+</a>
+</a>
+</div>

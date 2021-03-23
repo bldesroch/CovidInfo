@@ -1,0 +1,147 @@
+---
+title: " "
+
+site: distill::distill_website
+listing: posts
+css: [covid_siteweb.css]
+---
+
+
+<style>
+.box {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: space-between;
+
+}
+  
+
+.circle {
+    margin:10px;
+    width:100px;
+    background: #A4C2D1;
+    height:100px;
+    text-align:center;
+    border-radius:100px;
+    <strong>line-height: 90px; /* 100 - 10 */</strong>
+}
+
+.circle.multi-line {
+    line-height:15px;
+    height:70px;
+    padding-top:30px;
+    /* 70 + 30 = 100 */
+}
+
+
+span.bulle {
+    position: relative;
+    z-index: 24;
+    cursor: pointer;
+}
+</style>
+
+
+```{r setup, include=FALSE,echo=FALSE}
+knitr::opts_chunk$set(echo=F,warning=F,message=F,fig.align= "center",fig.height= 5, fig.width= 8.5)
+```
+
+```{r,include=FALSE}
+#Library et parametrage
+library(ggplot2)
+library(plotly)
+library(dplyr)
+library(stringr)
+library(RColorBrewer)
+library(leaflet)
+library(tidyr)
+library(ggpubr)
+
+bleu_fonc = 'rgb(52, 74, 88)'
+bleu_moy = 'rgb(7, 93, 142)'
+bleu_clair= 'rgb(35, 134, 148)'
+```
+
+
+```{r,include=FALSE}
+tx_posi_depart = read.csv("tx_positivite_depart.csv", sep=";")
+names(tx_posi_depart)<-c("Departement", "Semaines","Positivite","Tests","Classe_Age","Population")
+
+#Extraction année
+tx_posi_depart$year = str_sub(tx_posi_depart$Semaines, 1, 4) 
+tx_posi_depart$year = as.integer(tx_posi_depart$year)
+
+#Extraction semaine
+tx_posi_depart$week = str_sub(tx_posi_depart$Semaines, 7, 8) 
+tx_posi_depart$week = as.integer(tx_posi_depart$week)
+tx_posi_depart = tx_posi_depart %>% select(-Semaines)
+
+#Remplacement des départements Corse 2A et 2B pour des valeurs numériques.
+tx_posi_depart$Departement = str_replace_all(tx_posi_depart$Departement, fixed("2B"), "200")
+tx_posi_depart$Departement = str_replace_all(tx_posi_depart$Departement, fixed("2A"), "201")
+tx_posi_depart$Departement = as.integer(tx_posi_depart$Departement)
+
+df1<- aggregate(.~ Departement + week, tx_posi_depart, sum)
+df3<- aggregate(.~ week, tx_posi_depart, sum)
+# Taux de positivité : 100*nombre de test positif/ nombre de tests réalisés
+df1$tx_posi = (df1$Positivite/df1$Tests)*100
+df3$tx_posi = (df3$Positivite/df3$Tests)*100
+df3$tx_inci = (df3$Positivite)*100000/df3$Population
+
+df3 <- df3[-which(df3$week<=7),]
+
+
+
+#Le taux d'incidence correspond au nombre de tests positifs pour 100.000 habitants. Il est calculé de la manière suivante :
+#(100000 * nombre de cas positif) / Population
+df4 <- tx_posi_depart[which(tx_posi_depart$week==7),]
+```
+
+
+# Visualisation de données sur la pandémie du Covid-19
+
+## Qu'est ce que le covid ? 
+Le virus identifié en janvier 2020 en Chine est un nouveau coronavirus, nommé SARS-CoV-2. La maladie provoquée par ce coronavirus a été nommée COVID-19 par l’[Organisation mondiale de la Santé](https://www.who.int/fr/emergencies/diseases/novel-coronavirus-2019/advice-for-public) - OMS. Depuis le 11 mars 2020, l’OMS qualifie la situation mondiale du COVID-19 de pandémie.
+
+## En quelques chiffres :
+<br/>
+<small> Du 15 au 21 Février 2021</small>
+<br/>
+
+<div class="box"><div class="circle multi-line">Taux d'incidence <br/> `r round((100000*sum(df4$Positivite))/sum(df4$Population),1)` 
+</div>
+<div class="circle multi-line"> Taux de positivité <br/> `r round((sum(df4$Positivite)/sum(df4$Tests))*100,1)`%
+</div>
+<div class="circle multi-line"> 453% <br/> Chiffres
+</div>
+
+
+## Visualisation générale 
+
+```{r,include=TRUE, layout="l-body-outset", fig.width=6, fig.height=4}
+# df3 Taux de positivité 
+fig_tx_posi_2020 <- plot_ly(df3, x = ~week, y = ~tx_posi, name = 'Taux de positivité', type = 'scatter', mode = 'lines',
+        line = list(color = bleu_clair, width = 4)) 
+
+fig_tx_posi_2020 <- fig_tx_posi_2020 %>% layout(title = "Evolution du taux de positivité du Covid-19 en 2020",
+         xaxis = list(title = "Semaine"),
+         yaxis = list (title = "Taux de positivité")) %>%
+  config(displayModeBar = FALSE)
+
+```
+
+
+
+
+```{r,include=TRUE, layout="l-body-outset", fig.width=8, fig.height=4}
+# df3 Taux de indicidence 
+fig_tx_inci_2020 <- plot_ly(df3, x = ~week, y = ~tx_inci, name = "Taux d'incidence", type = 'scatter', mode = 'lines',
+        line = list(color = bleu_fonc, width = 4)) 
+
+fig_tx_inci_2020 <- fig_tx_inci_2020 %>% layout(title = "Evolution du taux d'incidence et de positivité du Covid-19 en 2020",
+         xaxis = list(title = "Semaine"),
+         yaxis = list (title = "Taux d'incidence")) %>%
+  config(displayModeBar = FALSE)
+subplot(fig_tx_posi_2020 ,fig_tx_inci_2020, nrows = 1)
+```

@@ -1,0 +1,228 @@
+---
+title: "Vaccination par département"
+css: [covid_siteweb.css]
+---
+
+
+```{r setup, include=FALSE,echo=FALSE}
+knitr::opts_chunk$set(echo=F,warning=F,message=F,fig.align= "center",fig.height= 5, fig.width= 8.5)
+```
+
+<h1> Etat de la vaccination </h1>
+```{r, include=FALSE}
+#Library et parametrage
+library(ggplot2)
+library(plotly)
+library(dplyr)
+library(stringr)
+library(RColorBrewer)
+library(leaflet)
+library(readr)
+library(leafpop)
+library(sf)
+library(sp)
+library(maps)
+library(tmap)
+library(tmaptools)
+library(raster)
+library(tidyverse)
+library(readxl)
+
+```
+
+
+```{r,include=FALSE}
+
+#database centre de vaccination
+vac_dept <- read_delim("vaccin_depart_total.csv", ",", escape_double = FALSE, trim_ws = TRUE, na = "empty")
+
+#Database pour la population par département
+data_pop <- read_excel("estim-pop-dep-sexe-gca-1975-2021.xls", 
+    sheet = "2021", range = "A5:H101")
+colnames(data_pop)[1] <- 'dep'  
+colnames(data_pop)[2] <- 'Nom_dep'  
+
+
+vac_dept <- left_join(vac_dept, data_pop, by = "dep") 
+```
+
+```{r,include=FALSE}
+#Vaccin :
+#0 : Tous vaccins
+#1 : COMIRNATY Pfizer/BioNTech
+#2 : Moderna
+#3 : AstraZeneka
+vac_dept <- vac_dept[,-3]
+vac_dept <- vac_dept[!str_detect(vac_dept$dep, "97"), ]
+vac_dept <- vac_dept[!str_detect(vac_dept$dep, "00"), ]
+
+# supprimer le nbre de vaccins totaux = 0, car pas utile
+vac_dept1 <- vac_dept[!str_detect(vac_dept$vaccin, "0"), ]
+
+#Données geographique de la France + carte de France vide.
+departement <- getData(name="GADM", country="FRA", level=2)
+dept = st_as_sf(departement)
+#plot(departement, main="Carte de France", border="grey")
+```
+
+```{r}
+#Avoir la database par type de vaccin 
+#-> Mise en place pour la mise en carto.
+carto<- vac_dept %>% pivot_wider(names_from =c(vaccin), values_from = c(n_tot_dose1,n_tot_dose2))
+
+#Renomme chaque colonne que l'on vient de créer.
+carto <- carto %>% rename(`COMIRNATY Pfizer BioNTech dose1` = n_tot_dose1_1) %>% rename(  `Moderna dose1` = n_tot_dose1_2) %>% rename( `AstraZeneka dose1` =n_tot_dose1_3) %>% rename( `COMIRNATY Pfizer BioNTech dose2` = n_tot_dose2_1) %>% rename( `Moderna dose2`=n_tot_dose2_2) %>% rename( `AstraZeneka dose2`=n_tot_dose2_3) %>% rename(`tous vaccins dose1` = n_tot_dose1_0) %>% rename(`tous vaccins dose2` = n_tot_dose2_0)
+
+#Population en % Partiellement vaccinée
+carto$part_vacc <- round((carto$`tous vaccins dose1`/carto$Total),4)*100 
+```  
+
+```{r}
+#Merge du polygonsdataframe et de la base de données, pour pouvoir cartographier notre base de données.
+dept <- dplyr::rename(dept, "dep" = CC_2)
+carto <- left_join(carto, dept, by = "dep")  
+carto=st_as_sf(carto)
+```
+
+```{r}
+#Gestion de la base de données pour les ggplots.
+vac_dept1$id<- vac_dept1$dep
+vac_dept1$id = str_replace_all(vac_dept1$id, fixed("2B"), "96")
+vac_dept1$id = str_replace_all(vac_dept1$id, fixed("2A"), "97")
+vac_dept1$id = as.integer(vac_dept1$id)
+
+#Gestion de la variable vaccin pour la renommer, pour créer les ggplots correspondant.
+vac_dept1$vaccin[vac_dept1$vaccin==1] <- "Pfizer & autres*"
+vac_dept1$vaccin[vac_dept1$vaccin==2] <- "Moderna"
+vac_dept1$vaccin[vac_dept1$vaccin==3] <- "AstraZeneka"
+vac_dept1$vaccin = as.factor(vac_dept1$vaccin)
+
+```
+
+
+
+```{r}
+#Itération pour les ggplots par départements.
+#Dataframe pour chaque département.
+list_dept = split(vac_dept1, vac_dept1$dep)
+#Création de plot pour chaque département et les ajouter dans les box.
+result = list()
+
+for(i in 1:length(list_dept)){
+  a <- as.data.frame(list_dept[[i]]) %>% ggplot(aes(x=vaccin,y=n_tot_dose1, color=vaccin))+ geom_bar(stat="identity", fill="grey",alpha=0.5) +scale_color_brewer(palette="YlGn") + theme_minimal() + theme(legend.position="none")+
+                                   labs(x="Type de vaccin", y=NULL,
+                                        title ="Nombre de vaccination par type de vaccin", subtitle = "Nombre cumulé au 28/02/21, en France métropolitaine")
+  result[[i]]=a
+}
+
+```
+
+
+<style>
+body {
+  padding: 20px;
+  font: 1em Helvetica Neue, Helvetica, Arial, sans-serif;
+}
+
+* {box-sizing: border-box;}
+
+p {
+  margin: 0 0 1em 0;
+}
+
+.flex {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.container {
+  width: 600px;
+  height: 8.6em;
+  border: 5px solid rgb(118,119,125);
+  padding: 5px;
+  box-shadow: 6px 6px 6px RGBa(118,119,125,0.3);
+  justify-content: space-between;
+  align-content: space-between;
+}
+
+.item {
+  padding: 5px;
+  background-color: rgba(255,255,255,.3);
+  border: 2px solid rgba(118,119,125,.5);
+}
+
+
+</style>
+
+
+<div class="container">
+  <div class="item">
+  <strong> Nombre de vaccinations cumulé : `r format(sum(vac_dept1$n_tot_dose1),scientific=FALSE)`</strong> 
+  <br />
+  Nombre cumulé de personne ayant reçu la première dose de vaccin.
+  <br />
+  <small> Depuis le 28 fevrier 2021.</small>
+  <br />
+  <small> source: Santé publique France </small>
+  </div>
+</div><br />
+
+
+<br />
+<div class="container">
+  <div class="item">
+  <strong> Part de personnes partiellement vaccinées : `r round((sum(vac_dept1$n_tot_dose1)/sum(vac_dept1$Total))*100,2)` % </strong> 
+  <br />
+  Part de la population ayant reçu la première dose de vaccin.
+  <br />
+  <small> Depuis le 28 fevrier 2021.</small>
+  <br />
+  <small> source: Santé publique France </small>
+  </div>
+</div>
+
+
+<h2>Carte interactive </h2>
+```{r,include=FALSE}
+# Quand on clique sur le département, la box d'information qui apparaît.
+boxdose1 <- paste0('Département : ', carto$NAME_2)
+
+box_part_vacc <- paste0('<strong> Département : </strong> ', carto$NAME_2, '<br/>',
+                  '<strong> Part de la population partiellement vaccinée : </strong>', carto$part_vacc,'% <br/>')
+
+palette_dose1=colorNumeric(palette = "YlGn", domain = carto$`tous vaccins dose1`)
+palette_part_vacc=colorNumeric(palette = "OrRd", domain = carto$part_vacc)
+
+
+```
+
+```{r, include=TRUE, layout="l-body-outset"}
+leaflet(carto, 
+options = leafletOptions(zoomControl = TRUE,
+                                 minZoom = 4, maxZoom = 6)) %>% 
+  addPolygons(opacity = 100, 
+                 color = "black", 
+                 weight = 0.25,
+                 options = list(clickable = FALSE), 
+                 fill = T, fillColor = ~palette_dose1(carto$`tous vaccins dose1`), 
+                 fillOpacity = 0.8, group="Nombre de vaccinés",label=boxdose1,popup = popupGraph(result, width = 300, height = 200)
+              )%>%
+ addLegend("bottomleft", pal = palette_dose1, values = carto$`tous vaccins dose1`,
+            group="Nombre de vaccinés", title = "Nombre de première dose injectée"
+            )%>%
+  addPolygons(opacity = 100, 
+                 color = "black", 
+                 weight = 0.25,
+                 options = list(clickable = FALSE), 
+                 fill = T, fillColor = ~palette_part_vacc(carto$part_vacc), 
+                 fillOpacity = 0.8, group="Part de vaccinés",popup=box_part_vacc
+              )%>% 
+  addLegend("bottomleft", pal = palette_part_vacc, values = carto$part_vacc,
+            group="Part de vaccinés", title = "Population partiellement vaccinée (%)") %>%
+  addLayersControl(overlayGroups=c("Nombre de vaccinés","Part de vaccinés"),
+                    position = "bottomright",
+                    options =layersControlOptions(collapsed =FALSE))%>%
+  hideGroup(c("Part de vaccinés"))
+```
+<small> *COMIRNATY et BioNTech </small>
+
