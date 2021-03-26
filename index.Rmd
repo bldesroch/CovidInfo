@@ -99,7 +99,7 @@ df4 <- tx_posi_depart[which(tx_posi_depart$week==7),]
 ```
 
 
-## Qu'est ce que le covid ? 
+## Qu'est ce que le COVID-19 ? 
 Le virus identifié en janvier 2020 en Chine est un nouveau coronavirus, nommé SARS-CoV-2. La maladie provoquée par ce coronavirus a été nommée COVID-19 par l’[Organisation mondiale de la Santé](https://www.who.int/fr/emergencies/diseases/novel-coronavirus-2019/advice-for-public) - OMS. Depuis le 11 mars 2020, l’OMS qualifie la situation mondiale du COVID-19 de pandémie.
 
 ## La pandémie en quelques chiffres :
@@ -111,11 +111,11 @@ Le virus identifié en janvier 2020 en Chine est un nouveau coronavirus, nommé 
 </div>
 <div class="circle multi-line"> Taux de positivité <br/> `r round((sum(df4$Positivite)/sum(df4$Tests))*100,1)`%
 </div>
-<div class="circle multi-line"> 453% <br/> Chiffres
-</div>
 
 
-# Évolution générale de la pandémie de covid 19.
+
+
+# Évolution générale de la pandémie de COVID-19.
 
 ```{r,include=TRUE, layout="l-body-outset", fig.width=6, fig.height=4}
 # df3 Taux de positivité 
