@@ -1,0 +1,149 @@
+---
+title: "Hospitalisation"
+css: covid_siteweb.css
+---
+
+
+```{r setup, include=FALSE,echo=FALSE}
+knitr::opts_chunk$set(echo=F,warning=F,message=F,fig.align= "center",fig.height= 5, fig.width= 8.5)
+```
+
+# Données hospitalières 
+```{r, include=FALSE}
+#Library et parametrage
+library(ggplot2)
+library(plotly)
+library(dplyr)
+library(stringr)
+library(RColorBrewer)
+library(leaflet)
+library(readr) 
+library(leafpop)
+library(sf)
+library(sp)
+library(maps)
+library(tmap)
+library(tmaptools)
+library(raster)
+library(tidyverse)
+library(readxl)
+
+```
+
+
+```{r,include=FALSE}
+#Base de donnée hospitalière
+
+Hosp <- read_delim("donnees-hospitalieres-nouveaux-covid19-2021-03-22-17h09.csv",";")
+
+data_pop <- read_excel("estim-pop-dep-sexe-gca-1975-2021.xls", 
+    sheet = "2021", range = "A5:H101")
+colnames(data_pop)[1] <- 'dep'  
+colnames(data_pop)[2] <- 'Nom_dep'  
+
+
+# Métropole
+
+Hosp <- Hosp[!str_detect(Hosp$dep, "^97"),]
+
+## Réanimation
+
+Tot_rea_dep <- aggregate(Hosp$incid_rea , by = list(Hosp$dep) , FUN = sum) 
+Tot_rea_dep <- Tot_rea_dep %>% rename(`dep` = Group.1) %>% rename( `Total_rea` = x)
+
+## Décès
+
+Tot_dc_dep <- aggregate(Hosp$incid_dc , by = list(Hosp$dep) , FUN = sum) 
+Tot_dc_dep <- Tot_dc_dep %>% rename(`dep` = Group.1) %>% rename( `Total_décès` = x)
+
+## Hospitalisation
+
+Tot_hosp_dep <- aggregate(Hosp$incid_hosp , by = list(Hosp$dep) , FUN = sum) 
+Tot_hosp_dep <- Tot_hosp_dep %>% rename(`dep` = Group.1) %>% rename( `Total_Hosp` = x)
+
+```
+
+```{r}
+#Carte de France
+
+departement <- getData(name="GADM", country="FRA", level=2)
+dept = st_as_sf(departement)
+dept <- dplyr::rename(dept, "dep" = CC_2)
+
+## carto pour rea
+carto <- left_join(Tot_rea_dep, dept, by = "dep") %>% left_join(Tot_dc_dep , dept, by ="dep") %>% left_join(Tot_hosp_dep, dept , by = "dep") 
+
+carto=st_as_sf(carto)
+
+```
+
+
+```{r}
+
+list_dept <- split(Hosp, Hosp$dep)
+result_rea = list()
+result_dc = list()
+result_hosp = list()
+
+for(i in 1:length(list_dept)){
+
+  b <- as.data.frame(list_dept[[i]]) %>% ggplot(aes(x=jour,y=incid_rea))+ geom_line(aes(group = 1), color = "steelblue") + scale_fill_brewer(palette="Purples")+ theme_minimal() + theme(legend.position="none")+
+        labs(x="Jours", y=NULL,title ="Évolution du nombre d'entrées en réanimation")+
+    theme(axis.text.x=element_blank()) 
+  result_rea[[i]]=b
+  
+  a <- as.data.frame(list_dept[[i]]) %>% ggplot(aes(x=jour,y=incid_dc))+ geom_line(aes(group = 1), color = "steelblue") + scale_fill_brewer(palette="Purples")+ theme_minimal() + theme(legend.position="none")+ labs(x="Jours", y=NULL,title ="Évolution du nombre de décès")+
+    theme(axis.text.x=element_blank())
+  result_dc[[i]]=a
+  
+  d<- as.data.frame(list_dept[[i]]) %>% ggplot(aes(x=jour,y=incid_hosp))+ geom_line(aes(group = 1), color = "steelblue") + scale_fill_brewer(palette="Purples")+ theme_minimal() + theme(legend.position="none")+ labs(x="Jours", y=NULL,title ="Évolution du nombre d'Hospitalisations")+
+    theme(axis.text.x=element_blank())
+  result_hosp[[i]]=d
+  
+}
+```
+
+
+```{r}
+boxdose1 <- paste0('Département : ', carto$NAME_2)
+palette_rea=colorNumeric(palette = "YlGn", domain = carto$`Total_rea`)
+palette_dc=colorNumeric(palette = "OrRd", domain = carto$`Total_décès`)
+palette_hosp = colorNumeric(palette = "YlOrBr", domain = carto$`Total_Hosp`)
+
+leaflet(carto, 
+options = leafletOptions(zoomControl = TRUE,
+                                 minZoom = 4, maxZoom = 7)) %>% 
+  addPolygons(opacity = 100, 
+                 color = "black", 
+                 weight = 0.25,
+                 options = list(clickable = FALSE), 
+                 fill = T, fillColor = ~palette_rea(carto$`Total_rea`), 
+                 fillOpacity = 0.8, group="Nombre de réanimations",label=boxdose1,popup = popupGraph(result_rea, width = 300, height = 200)
+              )%>%
+ addLegend("bottomleft", pal = palette_rea, values = carto$`Total_rea`,group="Nombre de réanimations", title = "Nombre total de Réanimations"
+            )%>%
+  addPolygons(opacity = 100, 
+                 color = "black", 
+                 weight = 0.25,
+                 options = list(clickable = FALSE), 
+                 fill = T, fillColor = ~palette_dc(carto$`Total_décès`), 
+                 fillOpacity = 0.8, group="Nombre de décès",label=boxdose1,popup = popupGraph(result_dc, width = 300, height = 200)
+              )%>%
+ addLegend("bottomleft", pal = palette_dc, values = carto$`Total_décès`,group="Nombre de décès", title = "Nombre total de Décès"
+            )%>%
+  addPolygons(opacity = 100, 
+                 color = "black", 
+                 weight = 0.25,
+                 options = list(clickable = FALSE), 
+                 fill = T, fillColor = ~palette_hosp(carto$`Total_Hosp`), 
+                 fillOpacity = 0.8, group="Nombre d'Hospitalisations",label=boxdose1,popup = popupGraph(result_hosp, width = 300, height = 200)
+              )%>%
+ addLegend("bottomleft", pal = palette_hosp, values = carto$`Total_Hosp`,group="Nombre d'Hospitalisations", title = "Nombre total d'Hospitalisations"
+            )%>%
+  addLayersControl(overlayGroups=c("Nombre de réaniations","Nombre de décès","Nombre d'Hospitalisations"),
+                    position = "bottomright",
+                    options =layersControlOptions(collapsed =FALSE))%>%
+  hideGroup(c("Nombre de décès", "Nombre d'Hospitalisations"))
+
+```
+

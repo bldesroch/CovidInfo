@@ -75,7 +75,7 @@ tx_posi_depart$year = as.integer(tx_posi_depart$year)
 #Extraction semaine
 tx_posi_depart$week = str_sub(tx_posi_depart$Semaines, 7, 8) 
 tx_posi_depart$week = as.integer(tx_posi_depart$week)
-tx_posi_depart = tx_posi_depart %>% select(-Semaines)
+tx_posi_depart = tx_posi_depart %>% dplyr::select(-Semaines)
 
 #Remplacement des départements Corse 2A et 2B pour des valeurs numériques.
 tx_posi_depart$Departement = str_replace_all(tx_posi_depart$Departement, fixed("2B"), "200")
@@ -142,4 +142,61 @@ fig_tx_inci_2020 <- fig_tx_inci_2020 %>% layout(title = "Evolution du taux d'inc
          yaxis = list (title = "Taux d'incidence")) %>%
   config(displayModeBar = FALSE)
 subplot(fig_tx_posi_2020 ,fig_tx_inci_2020, nrows = 1)
+```
+
+```{r}
+Hosp <- read_delim("donnees-hospitalieres-nouveaux-covid19-2021-03-22-17h09.csv",";")
+
+data_pop <- read_excel("estim-pop-dep-sexe-gca-1975-2021.xls", 
+    sheet = "2021", range = "A5:H101")
+colnames(data_pop)[1] <- 'dep'  
+colnames(data_pop)[2] <- 'Nom_dep'  
+
+Hosp <- Hosp[!str_detect(Hosp$dep, "^97"),]
+
+Tot_dc <- aggregate(Hosp$incid_dc , by = list(Hosp$jour) , FUN = sum)
+Tot_dc <- Tot_dc %>% rename(`jour` = Group.1) %>% rename(`Décès` = x)
+
+Tot_rea <- aggregate(Hosp$incid_rea , by = list(Hosp$jour) , FUN = sum)
+Tot_rea <- Tot_rea %>% rename(`jour` = Group.1) %>% rename(`Réa` = x)
+
+Tot_hosp <- aggregate(Hosp$incid_hosp , by = list(Hosp$jour) , FUN = sum)
+Tot_hosp <- Tot_hosp %>% rename(`jour` = Group.1) %>% rename(`Hosp` = x)
+
+```
+
+```{r}
+fig_recap_dc <- plot_ly(Tot_dc, x = ~jour, y = ~Décès, name = "Nombre de décès", type = 'scatter', mode = 'lines',
+        line = list(color = bleu_fonc, width = 2)) 
+
+fig_recap_dc <- fig_recap_dc %>% layout(title = "Evolution du nombre de décès liés au Covid-19 en France",
+         xaxis = list(title = "Temps"),
+         yaxis = list (title = "Nombre de décès")) %>%
+  config(displayModeBar = FALSE)
+
+fig_recap_dc
+```
+
+```{r}
+fig_recap_rea <- plot_ly(Tot_rea, x = ~jour, y = ~Réa, name = "Nombre de Réanimations", type = 'scatter', mode = 'lines',
+        line = list(color = bleu_fonc, width = 2)) 
+
+fig_recap_rea <- fig_recap_rea %>% layout(title = "Evolution du nombre d'entrées en réanimation liés au Covid-19 en France",
+         xaxis = list(title = "Temps"),
+         yaxis = list (title = "Entrées en réanimation")) %>%
+  config(displayModeBar = FALSE)
+
+fig_recap_rea
+```
+
+```{r}
+fig_recap_hosp <- plot_ly(Tot_hosp, x = ~jour, y = ~Hosp, name = "Nombre d'hospitalisations", type = 'scatter', mode = 'lines',
+        line = list(color = bleu_fonc, width = 2)) 
+
+fig_recap_hosp <- fig_recap_hosp %>% layout(title = "Evolution du nombre d'hospitalisations liés au Covid-19 en France",
+         xaxis = list(title = "Temps"),
+         yaxis = list (title = "Nombre d'hospitalisations")) %>%
+  config(displayModeBar = FALSE)
+
+fig_recap_hosp
 ```

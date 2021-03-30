@@ -14,6 +14,8 @@ navbar:
       href: carte.html
     - text: "Vaccination"
       href: vaccination.html
+    - text: "Hospitalisation"
+      href: hopital.html
     - text: "Qui sommes-nous ?"
       href: about.html
 output: 
