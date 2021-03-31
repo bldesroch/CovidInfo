@@ -1,9 +1,8 @@
 ---
-title: " "
-
+title: ' '
 site: distill::distill_website
 listing: posts
-css: [covid_siteweb.css]
+css: covid_siteweb.css
 ---
 
 
@@ -18,7 +17,7 @@ css: [covid_siteweb.css]
   
 
 .circle {
-    margin:10px;
+    margin: 30px;
     width:100px;
     background: #A4C2D1;
     height:100px;
@@ -57,6 +56,9 @@ library(RColorBrewer)
 library(leaflet)
 library(tidyr)
 library(ggpubr)
+library(readxl)
+library(readr)
+
 
 bleu_fonc = 'rgb(52, 74, 88)'
 bleu_moy = 'rgb(7, 93, 142)'
@@ -112,8 +114,9 @@ Le virus identifié en janvier 2020 en Chine est un nouveau coronavirus, nommé 
 <div class="circle multi-line"> Taux de positivité <br/> `r round((sum(df4$Positivite)/sum(df4$Tests))*100,1)`%
 </div>
 
-
-
+<div class="circle multi-line"> Nombre total de décès <br/>
+`r format(sum(Tot_dc_dep$Total_décès),scientific=FALSE)`
+</div>
 
 # Évolution générale de la pandémie de COVID-19.
 

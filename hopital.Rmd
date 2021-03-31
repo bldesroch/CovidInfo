@@ -97,7 +97,7 @@ p {
 
 .container {
   width: 600px;
-  height: 10.2em;
+  height: 10.5em;
   border: 5px solid rgb(118,119,125);
   padding: 5px;
   box-shadow: 6px 6px 6px RGBa(118,119,125,0.3);
@@ -117,7 +117,7 @@ p {
 
 <div class="container">
   <div class="item">
-  <strong> Nombre de décès dû au Covid-19 : `r format(sum(Tot_dc_dep$Total_décès),scientific=FALSE)`</strong> 
+  <strong> Nombre de décès dus au Covid-19 : `r format(sum(Tot_dc_dep$Total_décès),scientific=FALSE)`</strong> 
   <br />
   <strong> Part des décès dus au Covid-19 sur la population française : `r round((sum(Tot_dc_dep$Total_décès)/sum(data_pop$Total))*100,3)`% </strong> 
   <br />
@@ -129,7 +129,17 @@ p {
   </div>
 </div><br />
 
-
+<div class="container">
+  <div class="item">
+  <strong> Nombre d'hospitalisations dues au Covid-19 : `r format(sum(Tot_hosp_dep$Total_Hosp),scientific=FALSE)`</strong> 
+  <br />
+  <strong> Part des personnes hospitalisées pour Covid-19 sur la population française : `r round((sum(Tot_hosp_dep$Total_Hosp)/sum(data_pop$Total))*100,3)`% </strong> 
+  <br />
+  <small> Depuis le 19 Mars 2021.</small>
+  <br />
+  <small> source: Santé publique France </small>
+  </div>
+</div><br />
 
 
 ```{r}
