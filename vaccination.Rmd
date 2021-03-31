@@ -157,9 +157,9 @@ p {
 
 <div class="container">
   <div class="item">
-  <strong> Nombre de vaccinations cumulé : `r format(sum(vac_dept1$n_tot_dose1),scientific=FALSE)`</strong> 
+  <strong> Nombre de vaccinations cumulées : `r format(sum(vac_dept1$n_tot_dose1),scientific=FALSE)`</strong> 
   <br />
-  Nombre cumulé de personne ayant reçu la première dose de vaccin.
+  Nombre cumulé de personnes ayant reçu la première dose de vaccin.
   <br />
   <small> Depuis le 28 fevrier 2021.</small>
   <br />
@@ -171,7 +171,7 @@ p {
 <br />
 <div class="container">
   <div class="item">
-  <strong> Part de personnes partiellement vaccinées : `r round((sum(vac_dept1$n_tot_dose1)/sum(vac_dept1$Total))*100,2)` % </strong> 
+  <strong> Part de personnes partiellement vaccinées : `r round((sum(vac_dept1$n_tot_dose1)/sum(data_pop$Total))*100,2)` % </strong> 
   <br />
   Part de la population ayant reçu la première dose de vaccin.
   <br />
@@ -182,7 +182,9 @@ p {
 </div>
 
 
-<h2>Carte interactive </h2>
+
+
+## Carte interactive
 ```{r,include=FALSE}
 # Quand on clique sur le département, la box d'information qui apparaît.
 boxdose1 <- paste0('Département : ', carto$NAME_2)

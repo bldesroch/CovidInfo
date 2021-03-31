@@ -10,7 +10,7 @@ navbar:
   right:
     - text: "Accueil"
       href: index.html
-    - text: "Ou se faire vacciner et tester"
+    - text: "Lieux pour se faire vacciner et tester"
       href: carte.html
     - text: "Vaccination"
       href: vaccination.html

@@ -78,6 +78,60 @@ carto=st_as_sf(carto)
 ```
 
 
+<style>
+body {
+  padding: 20px;
+  font: 1em Helvetica Neue, Helvetica, Arial, sans-serif;
+}
+
+* {box-sizing: border-box;}
+
+p {
+  margin: 0 0 1em 0;
+}
+
+.flex {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.container {
+  width: 600px;
+  height: 10.2em;
+  border: 5px solid rgb(118,119,125);
+  padding: 5px;
+  box-shadow: 6px 6px 6px RGBa(118,119,125,0.3);
+  justify-content: space-between;
+  align-content: space-between;
+}
+
+.item {
+  padding: 5px;
+  background-color: rgba(255,255,255,.3);
+  border: 2px solid rgba(118,119,125,.5);
+}
+
+
+</style>
+
+
+<div class="container">
+  <div class="item">
+  <strong> Nombre de décès dû au Covid-19 : `r format(sum(Tot_dc_dep$Total_décès),scientific=FALSE)`</strong> 
+  <br />
+  <strong> Part des décès dus au Covid-19 sur la population française : `r round((sum(Tot_dc_dep$Total_décès)/sum(data_pop$Total))*100,3)`% </strong> 
+  <br />
+  Nombre cumulé de personnes décédées des suites du Covid-19.
+  <br />
+  <small> Depuis le 19 Mars 2021.</small>
+  <br />
+  <small> source: Santé publique France </small>
+  </div>
+</div><br />
+
+
+
+
 ```{r}
 
 list_dept <- split(Hosp, Hosp$dep)
@@ -110,6 +164,11 @@ palette_rea=colorNumeric(palette = "YlGn", domain = carto$`Total_rea`)
 palette_dc=colorNumeric(palette = "OrRd", domain = carto$`Total_décès`)
 palette_hosp = colorNumeric(palette = "YlOrBr", domain = carto$`Total_Hosp`)
 
+```
+
+
+```{r}
+
 leaflet(carto, 
 options = leafletOptions(zoomControl = TRUE,
                                  minZoom = 4, maxZoom = 7)) %>% 
@@ -140,7 +199,7 @@ options = leafletOptions(zoomControl = TRUE,
               )%>%
  addLegend("bottomleft", pal = palette_hosp, values = carto$`Total_Hosp`,group="Nombre d'Hospitalisations", title = "Nombre total d'Hospitalisations"
             )%>%
-  addLayersControl(overlayGroups=c("Nombre de réaniations","Nombre de décès","Nombre d'Hospitalisations"),
+  addLayersControl(overlayGroups=c("Nombre de réanimations","Nombre de décès","Nombre d'Hospitalisations"),
                     position = "bottomright",
                     options =layersControlOptions(collapsed =FALSE))%>%
   hideGroup(c("Nombre de décès", "Nombre d'Hospitalisations"))

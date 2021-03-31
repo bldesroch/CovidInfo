@@ -177,7 +177,7 @@ fig_recap_dc <- fig_recap_dc %>% layout(title = "Evolution du nombre de décès 
 fig_recap_dc
 ```
 
-```{r}
+```{r,include=TRUE, layout="l-body-outset", fig.width=9, fig.height=4}
 fig_recap_rea <- plot_ly(Tot_rea, x = ~jour, y = ~Réa, name = "Nombre de Réanimations", type = 'scatter', mode = 'lines',
         line = list(color = bleu_fonc, width = 2)) 
 
@@ -186,17 +186,20 @@ fig_recap_rea <- fig_recap_rea %>% layout(title = "Evolution du nombre d'entrée
          yaxis = list (title = "Entrées en réanimation")) %>%
   config(displayModeBar = FALSE)
 
-fig_recap_rea
+
+
+
 ```
 
-```{r}
+```{r,include=TRUE, layout="l-body-outset", fig.width=9, fig.height=4}
 fig_recap_hosp <- plot_ly(Tot_hosp, x = ~jour, y = ~Hosp, name = "Nombre d'hospitalisations", type = 'scatter', mode = 'lines',
-        line = list(color = bleu_fonc, width = 2)) 
+        line = list(color = bleu_clair, width = 2)) 
 
-fig_recap_hosp <- fig_recap_hosp %>% layout(title = "Evolution du nombre d'hospitalisations liés au Covid-19 en France",
+fig_recap_hosp <- fig_recap_hosp %>% layout(title = "Evolution du nombre d'hospitalisations et de réanimations liés au Covid-19 en France",
          xaxis = list(title = "Temps"),
          yaxis = list (title = "Nombre d'hospitalisations")) %>%
   config(displayModeBar = FALSE)
 
-fig_recap_hosp
+subplot(fig_recap_rea,fig_recap_hosp, nrows = 1)
+
 ```
