@@ -184,7 +184,7 @@ p {
 
 
 
-## Carte interactive
+## Effectifs cumulés et part de la population générale française primo-vaccinée
 ```{r,include=FALSE}
 # Quand on clique sur le département, la box d'information qui apparaît.
 boxdose1 <- paste0('Département : ', carto$NAME_2)
@@ -217,7 +217,7 @@ options = leafletOptions(zoomControl = TRUE,
                  weight = 0.25,
                  options = list(clickable = FALSE), 
                  fill = T, fillColor = ~palette_part_vacc(carto$part_vacc), 
-                 fillOpacity = 0.8, group="Part de vaccinés",popup=box_part_vacc
+                 fillOpacity = 0.8, group="Part de vaccinés",label=boxdose1,popup=box_part_vacc
               )%>% 
   addLegend("bottomleft", pal = palette_part_vacc, values = carto$part_vacc,
             group="Part de vaccinés", title = "Population partiellement vaccinée (%)") %>%
