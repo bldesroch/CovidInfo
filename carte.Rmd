@@ -1,7 +1,6 @@
 ---
 title: "Lieux pour se faire vacciner et tester"
-css: [covid_siteweb.css]
-
+css: covid_siteweb.css
 ---
 
 ```{r setup, include=FALSE,echo=FALSE}
@@ -84,7 +83,7 @@ MarkerIcon_vac <-makeIcon("marker-icon-grey.png", "marker-icon-2x-grey.png", 20,
 leaflet(
 options = leafletOptions(
             attributionControl=FALSE,zoomControl = TRUE,
-                                 minZoom = 0, maxZoom = 10)) %>% addTiles() %>% addMarkers(data = centres_vaccination, lng =   centres_vaccination$long_coor1, lat =   centres_vaccination$lat_coor1,icon=MarkerIcon_vac,  clusterOptions = markerClusterOptions(iconCreateFunction=JS("function (cluster) {var childCount = cluster.getChildCount();  
+                                 minZoom = 0, maxZoom = 20)) %>% addTiles() %>% addMarkers(data = centres_vaccination, lng =   centres_vaccination$long_coor1, lat =   centres_vaccination$lat_coor1,icon=MarkerIcon_vac,  clusterOptions = markerClusterOptions(iconCreateFunction=JS("function (cluster) {var childCount = cluster.getChildCount();  
     if (childCount < 50) {  
       c = 'rgba(168, 238, 160, 1.0);'
     } else if (childCount < 100) {  
