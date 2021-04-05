@@ -125,7 +125,7 @@ Le virus identifié en janvier 2020 en Chine est un nouveau coronavirus, nommé 
 fig_tx_posi_2020 <- plot_ly(df3, x = ~week, y = ~tx_posi, name = 'Taux de positivité', type = 'scatter', mode = 'lines',
         line = list(color = bleu_clair, width = 4)) 
 
-fig_tx_posi_2020 <- fig_tx_posi_2020 %>% layout(title = "Evolution du taux de positivité du Covid-19 en 2020",
+fig_tx_posi_2020 <- fig_tx_posi_2020 %>% layout(title = "Évolution du taux de positivité du Covid-19 en 2020",
          xaxis = list(title = "Semaine"),
          yaxis = list (title = "Taux de positivité")) %>%
   config(displayModeBar = FALSE)
@@ -140,7 +140,7 @@ fig_tx_posi_2020 <- fig_tx_posi_2020 %>% layout(title = "Evolution du taux de po
 fig_tx_inci_2020 <- plot_ly(df3, x = ~week, y = ~tx_inci, name = "Taux d'incidence", type = 'scatter', mode = 'lines',
         line = list(color = bleu_fonc, width = 4)) 
 
-fig_tx_inci_2020 <- fig_tx_inci_2020 %>% layout(title = "Evolution du taux d'incidence et de positivité du Covid-19 en 2020",
+fig_tx_inci_2020 <- fig_tx_inci_2020 %>% layout(title = "Évolution du taux d'incidence et de positivité du Covid-19 en 2020",
          xaxis = list(title = "Semaine"),
          yaxis = list (title = "Taux d'incidence")) %>%
   config(displayModeBar = FALSE)
@@ -168,7 +168,7 @@ Tot_hosp <- Tot_hosp %>% rename(`jour` = Group.1) %>% rename(`Hosp` = x)
 
 ```
 
-```{r}
+```{r,eval=FALSE}
 fig_recap_dc <- plot_ly(Tot_dc, x = ~jour, y = ~Décès, name = "Nombre de décès", type = 'scatter', mode = 'lines',
         line = list(color = bleu_fonc, width = 2)) 
 
@@ -180,11 +180,13 @@ fig_recap_dc <- fig_recap_dc %>% layout(title = "Evolution du nombre de décès 
 fig_recap_dc
 ```
 
-```{r,include=TRUE, layout="l-body-outset", fig.width=9, fig.height=4}
+```{r,include=TRUE, layout="l-body-outset", fig.width=9, fig.height=4,eval=FALSE}
+
+
 fig_recap_rea <- plot_ly(Tot_rea, x = ~jour, y = ~Réa, name = "Nombre de Réanimations", type = 'scatter', mode = 'lines',
         line = list(color = bleu_fonc, width = 2)) 
 
-fig_recap_rea <- fig_recap_rea %>% layout(title = "Evolution du nombre d'entrées en réanimation liés au Covid-19 en France",
+fig_recap_rea <- fig_recap_rea %>%   layout(title="Réanimation",
          xaxis = list(title = "Temps"),
          yaxis = list (title = "Entrées en réanimation")) %>%
   config(displayModeBar = FALSE)
@@ -194,7 +196,7 @@ fig_recap_rea <- fig_recap_rea %>% layout(title = "Evolution du nombre d'entrée
 
 ```
 
-```{r,include=TRUE, layout="l-body-outset", fig.width=9, fig.height=4}
+```{r,include=TRUE, layout="l-body-outset", fig.width=9, fig.height=4,eval=FALSE}
 fig_recap_hosp <- plot_ly(Tot_hosp, x = ~jour, y = ~Hosp, name = "Nombre d'hospitalisations", type = 'scatter', mode = 'lines',
         line = list(color = bleu_clair, width = 2)) 
 
@@ -206,3 +208,45 @@ fig_recap_hosp <- fig_recap_hosp %>% layout(title = "Evolution du nombre d'hospi
 subplot(fig_recap_rea,fig_recap_hosp, nrows = 1)
 
 ```
+
+
+
+
+```{r}
+
+
+button <- list(
+  list(x=1.4,y=0.3,
+       active= -1,
+    type="buttons",
+    buttons=list(
+      list(
+        label="Reanimation",
+        method="update",
+        args=list(list(visible=c(T,F,F)),list(title="Évolution du nombre de réanimations liés au Covid-19 en France"))
+      ),
+      list(
+        label="Hospitalisation",
+        method="update",
+        args=list(list(visible=c(F,T,F)),list(title="Évolution du nombre d'hospitalisations liés au Covid-19 en France"))
+      ),
+      list(
+        label="Décès",
+        method="update",
+        args=list(list(visible=c(F,F,T)),list(title="Évolution du nombre de décès liés au Covid-19 en France"))
+      )
+    )
+  )
+)
+
+
+
+
+plot_ly()%>% add_trace(visible=TRUE, x=Tot_rea$jour, y=Tot_rea$Réa, name = 'Réanimation',mode = 'lines', line = list(color=bleu_clair))%>%
+  add_trace(visible=FALSE,x=Tot_hosp$jour,y=Tot_hosp$Hosp,name = 'Hospitalisation',mode = 'lines', line = list(color=bleu_moy))%>%
+  add_trace(visible=FALSE, x=Tot_dc$jour,y=Tot_dc$Décès, name = 'Décès',mode = 'lines', line = list(color=bleu_fonc))%>%
+  layout(showlegend = FALSE,   xaxis = list(title = "Jour"),
+updatemenus = button, title="Évolution de la pandémie de Covid-19")%>%
+  config(displayModeBar = FALSE)
+```
+
