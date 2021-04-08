@@ -99,7 +99,26 @@ df3 <- df3[-which(df3$week<=7),]
 #(100000 * nombre de cas positif) / Population
 df4 <- tx_posi_depart[which(tx_posi_depart$week==7),]
 ```
+```{r}
+Hosp <- read_delim("donnees-hospitalieres-nouveaux-covid19-2021-03-22-17h09.csv",";")
 
+data_pop <- read_excel("estim-pop-dep-sexe-gca-1975-2021.xls", 
+    sheet = "2021", range = "A5:H101")
+colnames(data_pop)[1] <- 'dep'  
+colnames(data_pop)[2] <- 'Nom_dep'  
+
+Hosp <- Hosp[!str_detect(Hosp$dep, "^97"),]
+
+Tot_dc <- aggregate(Hosp$incid_dc , by = list(Hosp$jour) , FUN = sum)
+Tot_dc <- Tot_dc %>% rename(`jour` = Group.1) %>% rename(`Décès` = x)
+
+Tot_rea <- aggregate(Hosp$incid_rea , by = list(Hosp$jour) , FUN = sum)
+Tot_rea <- Tot_rea %>% rename(`jour` = Group.1) %>% rename(`Réa` = x)
+
+Tot_hosp <- aggregate(Hosp$incid_hosp , by = list(Hosp$jour) , FUN = sum)
+Tot_hosp <- Tot_hosp %>% rename(`jour` = Group.1) %>% rename(`Hosp` = x)
+
+```
 
 ## Qu'est ce que le COVID-19 ? 
 Le virus identifié en janvier 2020 en Chine est un nouveau coronavirus, nommé SARS-CoV-2. La maladie provoquée par ce coronavirus a été nommée COVID-19 par l’[Organisation mondiale de la Santé](https://www.who.int/fr/emergencies/diseases/novel-coronavirus-2019/advice-for-public) - OMS. Depuis le 11 mars 2020, l’OMS qualifie la situation mondiale du COVID-19 de pandémie.
@@ -115,7 +134,7 @@ Le virus identifié en janvier 2020 en Chine est un nouveau coronavirus, nommé 
 </div>
 
 <div class="circle multi-line"> Nombre total de décès <br/>
-`r format(sum(Tot_dc_dep$Total_décès),scientific=FALSE)`
+`r format(sum(Tot_dc$Décès),scientific=FALSE)`
 </div>
 
 # Évolution générale de la pandémie de COVID-19.
@@ -147,26 +166,7 @@ fig_tx_inci_2020 <- fig_tx_inci_2020 %>% layout(title = "Évolution du taux d'in
 subplot(fig_tx_posi_2020 ,fig_tx_inci_2020, nrows = 1)
 ```
 
-```{r}
-Hosp <- read_delim("donnees-hospitalieres-nouveaux-covid19-2021-03-22-17h09.csv",";")
 
-data_pop <- read_excel("estim-pop-dep-sexe-gca-1975-2021.xls", 
-    sheet = "2021", range = "A5:H101")
-colnames(data_pop)[1] <- 'dep'  
-colnames(data_pop)[2] <- 'Nom_dep'  
-
-Hosp <- Hosp[!str_detect(Hosp$dep, "^97"),]
-
-Tot_dc <- aggregate(Hosp$incid_dc , by = list(Hosp$jour) , FUN = sum)
-Tot_dc <- Tot_dc %>% rename(`jour` = Group.1) %>% rename(`Décès` = x)
-
-Tot_rea <- aggregate(Hosp$incid_rea , by = list(Hosp$jour) , FUN = sum)
-Tot_rea <- Tot_rea %>% rename(`jour` = Group.1) %>% rename(`Réa` = x)
-
-Tot_hosp <- aggregate(Hosp$incid_hosp , by = list(Hosp$jour) , FUN = sum)
-Tot_hosp <- Tot_hosp %>% rename(`jour` = Group.1) %>% rename(`Hosp` = x)
-
-```
 
 ```{r,eval=FALSE}
 fig_recap_dc <- plot_ly(Tot_dc, x = ~jour, y = ~Décès, name = "Nombre de décès", type = 'scatter', mode = 'lines',
@@ -208,6 +208,28 @@ fig_recap_hosp <- fig_recap_hosp %>% layout(title = "Evolution du nombre d'hospi
 subplot(fig_recap_rea,fig_recap_hosp, nrows = 1)
 
 ```
+```{r}
+#Estimateur à noyaux.
+library(stats)
+
+noyau_rea <- ksmooth(Tot_rea$jour, Tot_rea$Réa, kernel = c("normal"),
+bandwidth = 10)
+par(mfrow = c(1, 2))
+#plot(Tot_rea$jour, Tot_rea$Réa, type = "l", xlab = "",
+#ylab = "Ind. Prix. Conso. Ménages (INSEE)", col = "blue")
+#lines(Tot_rea$jour, noyau$y, col = "red", lwd = 2)
+
+
+
+noyau_hospi <- ksmooth(Tot_hosp$jour, Tot_hosp$Hosp, kernel = c("normal"),
+bandwidth = 10)
+par(mfrow = c(1, 2))
+
+
+noyau_deces <- ksmooth(Tot_dc$jour, Tot_dc$Décès, kernel = c("normal"),
+bandwidth = 10)
+par(mfrow = c(1, 2))
+```
 
 
 
@@ -242,11 +264,11 @@ button <- list(
 
 
 
-plot_ly()%>% add_trace(visible=TRUE, x=Tot_rea$jour, y=Tot_rea$Réa, name = 'Réanimation',mode = 'lines', line = list(color=bleu_clair))%>%
-  add_trace(visible=FALSE,x=Tot_hosp$jour,y=Tot_hosp$Hosp,name = 'Hospitalisation',mode = 'lines', line = list(color=bleu_moy))%>%
-  add_trace(visible=FALSE, x=Tot_dc$jour,y=Tot_dc$Décès, name = 'Décès',mode = 'lines', line = list(color=bleu_fonc))%>%
+plot_ly()%>% add_trace(visible=TRUE, x=Tot_rea$jour, y=noyau_rea$y, name = 'Réanimation',mode = 'lines', line = list(color=bleu_clair))%>%
+  add_trace(visible=FALSE,x=Tot_hosp$jour,y=noyau_hospi$y,name = 'Hospitalisation',mode = 'lines', line = list(color=bleu_moy))%>%
+  add_trace(visible=FALSE, x=Tot_dc$jour,y=noyau_deces$y, name = 'Décès',mode = 'lines', line = list(color=bleu_fonc))%>%
   layout(showlegend = FALSE,   xaxis = list(title = "Jour"),
 updatemenus = button, title="Évolution de la pandémie de Covid-19")%>%
   config(displayModeBar = FALSE)
 ```
-
+<small> Graphiques corrigés des variations saisonnières </small>
